@@ -9,10 +9,11 @@ library(bigmemory)
 
 ## -----------------------------------------------------------------------------
 family = "gaussian"
-sample_size = 150; p = 400; n_g_non_zero = 10; n_gxe_non_zero = 5
+sample_size = 180; p = 400; n_g_non_zero = 10; n_gxe_non_zero = 5
 
 data = data.gen(seed=1, sample_size=sample_size, p=p, 
-                n_g_non_zero=n_g_non_zero, n_gxe_non_zero=n_gxe_non_zero, 
+                n_g_non_zero=n_g_non_zero, 
+                n_gxe_non_zero=n_gxe_non_zero, 
                 mode="strong_hierarchical",
                 family=family)
 
@@ -32,6 +33,7 @@ cbind(data$Beta_G[data$Beta_G != 0], data$Beta_GxE[data$Beta_G != 0])
 start = Sys.time()
 tune_model = gesso.cv(G=data$G_train, E=data$E_train, Y=data$Y_train, 
                       family=family, grid_size=20, tolerance=1e-4,
+                      grid_min_ratio=1e-2,
                       parallel=TRUE, nfolds=3,
                       normalize=TRUE,
                       normalize_response=TRUE,
@@ -102,13 +104,14 @@ cbind(test_R2_gesso, test_R2_glmnet)
 
 ## -----------------------------------------------------------------------------
 family = "gaussian"
-sample_size = 150; p = 400; n_g_non_zero = 10; n_gxe_non_zero = 5
+sample_size = 180; p = 400; n_g_non_zero = 10; n_gxe_non_zero = 5
 n_confounders = 2
 
 grid = 10^seq(-3, log10(1), length.out = 20)
 
 data = data.gen(seed=1, sample_size=sample_size, p=p, 
-                n_g_non_zero=n_g_non_zero, n_gxe_non_zero=n_gxe_non_zero, 
+                n_g_non_zero=n_g_non_zero, 
+                n_gxe_non_zero=n_gxe_non_zero, 
                 mode="strong_hierarchical",
                 family=family,
                 n_confounders=n_confounders)
@@ -124,10 +127,11 @@ tune_model = gesso.cv(G=data$G_train, E=data$E_train, Y=data$Y_train,
 
 
 ## -----------------------------------------------------------------------------
-sample_size = 600; p = 30000
-pG = 0.03
-data = data.gen(seed=1, sample_size=sample_size, p=p, 
-                n_g_non_zero=n_g_non_zero, n_gxe_non_zero=n_gxe_non_zero, 
+sample_size = 100; p = 10000
+pG = 0.1
+data = data.gen(sample_size=sample_size, p=p, 
+                n_g_non_zero=n_g_non_zero, 
+                n_gxe_non_zero=n_gxe_non_zero, 
                 mode = "strong_hierarchical",
                 pG=pG,
                 family=family)
@@ -135,7 +139,7 @@ sum(data$G_train != 0) / (sample_size * p)
 
 start = Sys.time()
 fit = gesso.fit(G=data$G_train, E=data$E_train, Y=data$Y_train, 
-                grid_size=20, grid_min_ratio=1e-2,
+                grid_size=20, grid_min_ratio=1e-1,
                 tolerance=1e-4,
                 normalize=TRUE,
                 normalize_response=TRUE)
@@ -147,7 +151,7 @@ G_train_sparse = as(data$G_train, "dgCMatrix")
 start = Sys.time()
 fit = gesso.fit(G=G_train_sparse, E=data$E_train, Y=data$Y_train, 
                 tolerance=1e-4,
-                grid_size=20, grid_min_ratio=1e-2,
+                grid_size=20, grid_min_ratio=1e-1,
                 normalize=TRUE,
                 normalize_response=TRUE)
 time_sparse = difftime(Sys.time(), start, units="secs"); time_sparse

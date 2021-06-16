@@ -6,7 +6,7 @@ test_that("training loss is similar to the fit by glmnet when E=0", {
   grid = rev(grid)
   tols = c(1e-4)
   
-  #max_iterations = 20000
+  max_iterations = 2000
   
   for (family in c("gaussian", "binomial")){
     #for (seed in 1:20) {
@@ -23,7 +23,7 @@ test_that("training loss is similar to the fit by glmnet when E=0", {
         fit = gesso.fit(G=data$G_train, E=rep(0, sample_size),
                              Y=data$Y_train, C=data$C_train,
                              tolerance=tol, grid=grid, family=family, 
-                             normalize=FALSE)
+                             normalize=FALSE, max_iterations=max_iterations)
         expect_equal(sum(fit$has_converged != 1), 0)
         expect_lt(max(fit$objective_value - rep(glmnet_fit$objective_value, rep(grid_size, grid_size))), tol)
       }
