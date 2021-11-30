@@ -127,25 +127,6 @@ tune_model = gesso.cv(G=data$G_train, E=data$E_train, Y=data$Y_train,
 
 
 ## -----------------------------------------------------------------------------
-sample_size = 100; p = 10000
-pG = 0.1
-data = data.gen(sample_size=sample_size, p=p, 
-                n_g_non_zero=n_g_non_zero, 
-                n_gxe_non_zero=n_gxe_non_zero, 
-                mode = "strong_hierarchical",
-                pG=pG,
-                family=family)
-sum(data$G_train != 0) / (sample_size * p)
-
-start = Sys.time()
-fit = gesso.fit(G=data$G_train, E=data$E_train, Y=data$Y_train, 
-                grid_size=20, grid_min_ratio=1e-1,
-                tolerance=1e-4,
-                normalize=TRUE,
-                normalize_response=TRUE)
-time_non_sparse = difftime(Sys.time(), start, units="secs"); time_non_sparse
-
-## -----------------------------------------------------------------------------
 G_train_sparse = as(data$G_train, "dgCMatrix")
 
 start = Sys.time()
@@ -155,9 +136,6 @@ fit = gesso.fit(G=G_train_sparse, E=data$E_train, Y=data$Y_train,
                 normalize=TRUE,
                 normalize_response=TRUE)
 time_sparse = difftime(Sys.time(), start, units="secs"); time_sparse
-
-## -----------------------------------------------------------------------------
-as.numeric(time_non_sparse) / as.numeric(time_sparse)
 
 ## -----------------------------------------------------------------------------
 hist(fit$working_set_size, breaks = 100, col="blue")
